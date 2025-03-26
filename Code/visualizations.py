@@ -4,6 +4,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import ttest_ind
 
+sns.set_theme(font_scale=200)
+
 
 # Function to calculate 95% confidence interval
 def confidence_interval(data):
@@ -61,7 +63,7 @@ def visualize_width(csv_file, base_dataset, filter_type="all", data_type="testin
     plot_df = pd.DataFrame(plot_data)
 
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     
 
     colors = sns.color_palette("plasma", n_colors=plot_df['layer_base_width'].nunique())
@@ -92,13 +94,13 @@ def visualize_width(csv_file, base_dataset, filter_type="all", data_type="testin
                     for width in sorted(plot_df['layer_base_width'].unique())]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.85, 0))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.75, 0))
     plt.gca().add_artist(legend1)
     legend2 = plt.legend(handles=width_legend, loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_width_{data_type}_{filter_type}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
     # Conduct t-test for each width
@@ -170,7 +172,7 @@ def visualize_depth(csv_file, base_dataset, filter_type="all", max_reservoir_lay
     plot_df = pd.DataFrame(plot_data)
 
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     
 
     colors = sns.color_palette("plasma", n_colors=plot_df['num_reservoir_layers'].nunique())
@@ -203,13 +205,13 @@ def visualize_depth(csv_file, base_dataset, filter_type="all", max_reservoir_lay
                     for depth in sorted(plot_df['num_reservoir_layers'].unique())]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='upper right', frameon=True, bbox_to_anchor=(0.85, 1))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.75, 0))
     plt.gca().add_artist(legend1)
-    legend2 = plt.legend(handles=depth_legend, loc='upper right', frameon=True, bbox_to_anchor=(1, 1))
+    legend2 = plt.legend(handles=depth_legend, loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_depth_{data_type}_{filter_type}_skip.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
     depths = df['num_reservoir_layers'].unique()
@@ -278,7 +280,7 @@ def visualize_scaling(csv_file, base_dataset, filter_type="all", data_type="test
     plot_df = pd.DataFrame(plot_data)
 
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     
 
     colors = sns.color_palette("plasma", n_colors=plot_df['scaling_factor'].nunique())
@@ -310,13 +312,13 @@ def visualize_scaling(csv_file, base_dataset, filter_type="all", data_type="test
                       for factor in sorted(plot_df['scaling_factor'].unique())]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.85, 0))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.75, 0))
     plt.gca().add_artist(legend1)
     legend2 = plt.legend(handles=scaling_legend, loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_scaling_{data_type}_{filter_type}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
     scalings = df['reservoir_layer_scaling_factor'].unique()
@@ -384,7 +386,7 @@ def visualize_position(csv_file, base_dataset, filter_type="all", data_type="tes
     plot_df = pd.DataFrame(plot_data)
 
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     
 
     colors = sns.color_palette("plasma", n_colors=plot_df['position'].nunique())
@@ -416,13 +418,13 @@ def visualize_position(csv_file, base_dataset, filter_type="all", data_type="tes
                        for position in sorted(plot_df['position'].unique())]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.8, 0))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.75, 0))
     plt.gca().add_artist(legend1)
     legend2 = plt.legend(handles=position_legend, loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_position_{data_type}_{filter_type}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
     positions = df['position'].unique()
@@ -493,7 +495,7 @@ def visualize_regularization(csv_file, base_dataset, filter_type="all", data_typ
     plot_df = pd.DataFrame(plot_data)
 
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     plt.rcParams.update({'font.size': 14})  # Adjust the size as needed
 
     colors = sns.color_palette("plasma", n_colors=plot_df['regularization_type'].nunique())
@@ -530,13 +532,13 @@ def visualize_regularization(csv_file, base_dataset, filter_type="all", data_typ
                              for _, row in sorted_reg_df.iterrows()]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.2, 0))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.25, 0))
     plt.gca().add_artist(legend1)
     legend2 = plt.legend(handles=regularization_legend, loc='lower left', frameon=True, bbox_to_anchor=(0, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_regularization_{data_type}_{filter_type}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
     # Conduct t-test for each regularization type and amount
@@ -602,7 +604,7 @@ def visualize_linear_separability(csv_file, base_dataset, filter_type="all"):
 
     plot_df = pd.DataFrame(plot_data)
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     
     colors = sns.color_palette("plasma", n_colors=plot_df['score_type'].nunique())
     color_map = {score_type: colors[i] for i, score_type in enumerate(sorted(plot_df['score_type'].unique()))}
@@ -633,13 +635,13 @@ def visualize_linear_separability(csv_file, base_dataset, filter_type="all"):
                          for score_type in sorted(plot_df['score_type'].unique())]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.7, 0))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower right', frameon=True, bbox_to_anchor=(0.6, 0))
     plt.gca().add_artist(legend1)
     legend2 = plt.legend(handles=score_type_legend, loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_linear_separability_{filter_type}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
 ##########################################################################################################################
@@ -692,7 +694,7 @@ def visualize_training(csv_file, base_dataset, filter_type="all", data_type="tes
     plot_df = pd.DataFrame(plot_data)
 
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     
 
     colors = sns.color_palette("plasma", n_colors=plot_df['epoch'].nunique())
@@ -723,13 +725,13 @@ def visualize_training(csv_file, base_dataset, filter_type="all", data_type="tes
                     for epoch in sorted(plot_df['epoch'].unique())]
 
     # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.15, 0))
+    legend1 = plt.legend(handles=frozen_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.25, 0))
     plt.gca().add_artist(legend1)
     legend2 = plt.legend(handles=epoch_legend, loc='lower left', frameon=True, bbox_to_anchor=(0, 0))
 
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_training_{data_type}_{filter_type}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
     # Conduct t-test for each epoch
@@ -752,113 +754,102 @@ def visualize_training(csv_file, base_dataset, filter_type="all", data_type="tes
 
 ##########################################################################################################################
 
-def visualize_combined(csv_layer, csv_ratio, base_dataset, data_type="testing", num_epochs_to_plot=6):
+def visualize_combined(csv_layer, csv_ratio, base_dataset, layer_index, num_epochs_to_plot=50):
     df_layer = pd.read_csv(csv_layer)
     df_ratio = pd.read_csv(csv_ratio)
-    df_ratio = df_ratio[df_ratio["freeze_ratio"].isin([0.1,0.2])]
-    
-    if data_type not in ["training", "testing"]:
-        raise ValueError("data_type must be one of ['training', 'testing']")
+    df_ratio = df_ratio[df_ratio["freeze_ratio"].isin([0.1, 0.2, 0.3, 0.4, 0.5])]
 
-    score_column_prefix = "layer_{}_train_separability" if data_type == "training" else "layer_{}_test_separability"
-    
     df_layer["freezing_type"] = df_layer["frozen"].map({True: "Layer Frozen", False: "Unfrozen"})
-    df_ratio["freezing_type"] = df_ratio["freeze_ratio"].apply(lambda x: f"{int(x * 100)}% Neurons Frozen")
-    
+    df_ratio["freezing_type"] = df_ratio["freeze_ratio"].apply(lambda x: f"{int(x * 100)}% Weights Frozen")
+
     df_combined = pd.concat([df_layer, df_ratio], ignore_index=True)
     grouped = df_combined.groupby(['freezing_type', 'epoch'])
-    
+
     plot_data = []
     for (freezing_type, epoch), group in grouped:
         if epoch < num_epochs_to_plot:
-            for i in range(6):
-                layer_column = score_column_prefix.format(i)
-                if layer_column in group.columns:
-                    mean, lower, upper = confidence_interval(group[layer_column])
-                    plot_data.append({
-                        "freezing_type": freezing_type,
-                        "epoch": epoch,
-                        "layer": i,
-                        "mean_separability": mean,
-                        "lower_ci": lower,
-                        "upper_ci": upper
-                    })
-    
+            layer_column = f"layer_{layer_index}_test_separability"
+            if layer_column in group.columns:
+                mean, lower, upper = confidence_interval(group[layer_column])
+                plot_data.append({
+                    "freezing_type": freezing_type,
+                    "epoch": epoch,
+                    "mean_separability": mean,
+                    "lower_ci": lower,
+                    "upper_ci": upper
+                })
+
     plot_df = pd.DataFrame(plot_data)
-    
+
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 8))
-    colors = sns.color_palette("plasma", n_colors=plot_df['epoch'].nunique())
-    color_map = {epoch: colors[i] for i, epoch in enumerate(sorted(plot_df['epoch'].unique()))}
-    linestyle_map = {
-        "Layer Frozen": "solid",
-        "Unfrozen": "dashed",
-        "10% Neurons Frozen": "dotted",
-        "20% Neurons Frozen": "dashdot"
-    }
-    
-    for (freezing_type, epoch), group in plot_df.groupby(['freezing_type', 'epoch']):
-        color = color_map[epoch]
-        linestyle = linestyle_map.get(freezing_type, 'solid')
-        plt.plot(group["layer"], group["mean_separability"], color=color, linestyle=linestyle, alpha=1, label=None)
-        plt.fill_between(group["layer"], group["lower_ci"], group["upper_ci"], color=color, alpha=0.1)
-    
-    for layer in range(1, 6, 3):
-        plt.axvline(x=layer, color='black', linestyle='dotted', linewidth=1.5)
-    
-    plt.xticks(np.arange(0, 6, 1))
+    plt.figure(figsize=(9, 6))
+    colors = sns.color_palette("plasma", n_colors=plot_df['freezing_type'].nunique())
+    color_map = {freezing_type: colors[i] for i, freezing_type in enumerate(sorted(plot_df['freezing_type'].unique()))}
+
+    for freezing_type, group in plot_df.groupby('freezing_type'):
+        color = color_map[freezing_type]
+        plt.plot(group["epoch"], group["mean_separability"], color=color, alpha=1, label=freezing_type)
+        plt.fill_between(group["epoch"], group["lower_ci"], group["upper_ci"], color=color, alpha=0.1)
+
+    # Set major ticks every 10 epochs
+    plt.xticks(np.arange(0, num_epochs_to_plot, 10))
+
+    # Set minor ticks every 5 epochs
+    plt.minorticks_on()
     plt.grid(True, which='both', linestyle='dotted', linewidth=0.5)
-    plt.xlabel("Layer Index")
+    plt.grid(True, which='minor', linestyle='dotted', linewidth=0.5, color='lightgrey')
+
+    plt.xlabel("Epoch")
     plt.ylabel("Average Linear Separability Score")
-    plt.title(f"Average Linear Separability Score ({base_dataset.upper()}, {data_type.capitalize()}) with 95% CI by Epoch")
-    
-    freezing_legend = [plt.Line2D([0], [0], color='black', linestyle=linestyle_map[f], label=f) for f in linestyle_map]
-    epoch_legend = [plt.Line2D([0], [0], color=color_map[epoch], linestyle='solid', label=f"Epoch={epoch}")
-                    for epoch in sorted(plot_df['epoch'].unique())]
-    
-    legend1 = plt.legend(handles=freezing_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.15, 0))
-    plt.gca().add_artist(legend1)
-    legend2 = plt.legend(handles=epoch_legend, loc='lower left', frameon=True, bbox_to_anchor=(0, 0))
-    
+    plt.title(f"Average Linear Separability Score ({base_dataset.upper()}, Layer {layer_index}) with 95% CI by Epoch")
+
+    plt.legend(loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
     plt.tight_layout()
-    filename = f"Results/Images/{base_dataset}_training_{data_type}_comparison.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    filename = f"Results/Images/{base_dataset}_layer_{layer_index}_comparison.png"
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
 ##########################################################################################################################
 
 base_dataset = "cifar_100"
 
-# csv_file_path = f"Results/{base_dataset}_width_new.csv"
-# visualize_width(csv_file_path, base_dataset, filter_type="all", data_type="training")
-# visualize_width(csv_file_path, base_dataset, filter_type="all", data_type="testing")
+csv_file_path = f"Results/{base_dataset}_width_new.csv"
+visualize_width(csv_file_path, base_dataset, filter_type="all", data_type="training")
+visualize_width(csv_file_path, base_dataset, filter_type="all", data_type="testing")
 
 
-# csv_file_path = f"Results/{base_dataset}_depth_new.csv"
-# csv_file_path = f"Results/{base_dataset}_depth_skip_new.csv"
-# visualize_depth(csv_file_path, base_dataset, filter_type="all", max_reservoir_layers=8, data_type="training")
-# visualize_depth(csv_file_path, base_dataset, filter_type="all", max_reservoir_layers=8, data_type="testing")
+csv_file_path = f"Results/{base_dataset}_depth_skip_new.csv"
+csv_file_path = f"Results/{base_dataset}_depth_skip_new.csv"
+visualize_depth(csv_file_path, base_dataset, filter_type="all", max_reservoir_layers=8, data_type="training")
+visualize_depth(csv_file_path, base_dataset, filter_type="all", max_reservoir_layers=8, data_type="testing")
 
 
-# csv_file_path = f"Results/{base_dataset}_scaling_new.csv"
-# visualize_scaling(csv_file_path, base_dataset, filter_type="all", data_type="training")
-# visualize_scaling(csv_file_path, base_dataset, filter_type="all", data_type="testing")
+csv_file_path = f"Results/{base_dataset}_scaling_new.csv"
+visualize_scaling(csv_file_path, base_dataset, filter_type="all", data_type="training")
+visualize_scaling(csv_file_path, base_dataset, filter_type="all", data_type="testing")
 
 
-# csv_file_path = f"Results/{base_dataset}_position_new.csv"
-# visualize_position(csv_file_path, base_dataset, filter_type="all", data_type="training")
-# visualize_position(csv_file_path, base_dataset, filter_type="all", data_type="testing")
+csv_file_path = f"Results/{base_dataset}_position_new.csv"
+visualize_position(csv_file_path, base_dataset, filter_type="all", data_type="training")
+visualize_position(csv_file_path, base_dataset, filter_type="all", data_type="testing")
 
-# csv_file_path = f"Results/{base_dataset}_regularization_new.csv"
-# visualize_regularization(csv_file_path, base_dataset, filter_type="all", data_type="training")
-# visualize_regularization(csv_file_path, base_dataset, filter_type="all", data_type="testing")
+csv_file_path = f"Results/{base_dataset}_regularization_new.csv"
+visualize_regularization(csv_file_path, base_dataset, filter_type="all", data_type="training")
+visualize_regularization(csv_file_path, base_dataset, filter_type="all", data_type="testing")
 
-# csv_file_path = f"Results/{base_dataset}_frozen_states.csv"
-# visualize_linear_separability(csv_file_path, base_dataset, filter_type="all")
+csv_file_path = f"Results/{base_dataset}_frozen_states.csv"
+visualize_linear_separability(csv_file_path, base_dataset, filter_type="all")
 
-# csv_file_path = f"Results/{base_dataset}_training_separability_new.csv"
-# visualize_training(csv_file_path, base_dataset, num_epochs_to_plot=5, data_type="training")
-# visualize_training(csv_file_path, base_dataset, num_epochs_to_plot=5, data_type="testing")
+csv_file_path = f"Results/{base_dataset}_training_separability_new.csv"
+visualize_training(csv_file_path, base_dataset, num_epochs_to_plot=5, data_type="training")
+visualize_training(csv_file_path, base_dataset, num_epochs_to_plot=5, data_type="testing")
 
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", "cifar_10", data_type="testing")
+
+visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=0, num_epochs_to_plot=11)
+visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=1, num_epochs_to_plot=11)
+visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=2, num_epochs_to_plot=11)
+visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=3, num_epochs_to_plot=11)
+visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=4, num_epochs_to_plot=11)
+visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=5, num_epochs_to_plot=11)
+
 
