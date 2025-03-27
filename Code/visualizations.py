@@ -811,7 +811,7 @@ def visualize_combined(csv_layer, csv_ratio, base_dataset, layer_index, num_epoc
 
 ##########################################################################################################################
 
-base_dataset = "cifar_100"
+base_dataset = "cifar_10"
 
 csv_file_path = f"Results/{base_dataset}_width_new.csv"
 visualize_width(csv_file_path, base_dataset, filter_type="all", data_type="training")
