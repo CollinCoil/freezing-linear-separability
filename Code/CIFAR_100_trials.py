@@ -95,7 +95,7 @@ def evaluate_width(layer_base_widths, frozen_options, num_trials=25, epochs=100,
 # Example usage
 layer_base_widths = [32, 64, 128, 256, 512, 1024]
 frozen_options = [True, False]
-# evaluate_width(layer_base_widths, frozen_options)
+evaluate_width(layer_base_widths, frozen_options)
 
 
 ##############################################################################################
@@ -167,7 +167,7 @@ def evaluate_depth(num_reservoir_layers, frozen_options, num_trials=25, epochs=1
 # Example usage
 num_reservoir_layers = [8, 7, 6, 5, 4, 3, 2, 1]
 frozen_options = [True, False]
-# evaluate_depth(num_reservoir_layers, frozen_options)
+evaluate_depth(num_reservoir_layers, frozen_options)
 
 ##############################################################################################
 
@@ -243,7 +243,7 @@ num_reservoir_layers = [8, 7, 6, 5, 4, 3, 2]
 frozen_options = [True, False]
 use_skip_connections_options = [True]  # New skip connection flag
 
-# evaluate_depth_with_skip(num_reservoir_layers, frozen_options, use_skip_connections_options)
+evaluate_depth_with_skip(num_reservoir_layers, frozen_options, use_skip_connections_options)
 
 ##############################################################################################
 
@@ -314,7 +314,7 @@ def evaluate_reservoir_scaling(reservoir_layer_scaling_factors, frozen_options, 
 # Example usage
 reservoir_layer_scaling_factors = [0.25, 0.5, 1, 2, 4, 8, 16, 32]
 frozen_options = [True, False]
-# evaluate_reservoir_scaling(reservoir_layer_scaling_factors, frozen_options)
+evaluate_reservoir_scaling(reservoir_layer_scaling_factors, frozen_options)
 
 ##############################################################################################
 
@@ -384,7 +384,7 @@ def evaluate_frozen_position(positions, frozen_options, num_trials=25, epochs=10
 # Example usage
 positions = ["alternating", "front", "middle", "back"]
 frozen_options = [True, False]
-# evaluate_frozen_position(positions, frozen_options)
+evaluate_frozen_position(positions, frozen_options)
 
 ##############################################################################################
 
@@ -445,81 +445,7 @@ regularization_options = [
     ("dropout_0.5", {"use_dropout": True, "dropout_rate": 0.5})
 ]
 frozen_options = [True, False]
-# evaluate_regularization(regularization_options, frozen_options)
-
-##############################################################################################
-
-def evaluate_frozen_states(frozen_options, num_trials=25, epochs=100, batch_size=64):
-    # Load data
-    (x_train, y_train), (x_test, y_test) = load_cifar100()
-
-    # Results DataFrame
-    results = []
-
-    # Run experiments
-    for frozen in frozen_options:
-        trial_results = []
-        for trial in range(num_trials):
-            # Initialize network
-            model, hidden_state_model = create_fc_network(
-                input_shape=(32 * 32 * 3,),
-                num_reservoir_layers=2,
-                layer_base_width=256,
-                reservoir_layer_scaling_factor=2,
-                num_output_classes=100,
-                activation_function="relu",
-                frozen=frozen,
-                position="alternating"
-            )
-
-            # Compile the model
-            model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
-
-            # Train the model on CIFAR-100
-            history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test), verbose=0)
-
-            # Extract hidden states for training and test sets
-            train_hidden_states = hidden_state_model.predict(x_train)
-            test_hidden_states = hidden_state_model.predict(x_test)
-
-            # Evaluate linear separability using training hidden states as the training set
-            df_results_train = evaluate_linear_separability(train_hidden_states, y_train, test_hidden_states, y_test)
-
-            # Evaluate linear separability using testing hidden states as the training set
-            df_results_test = evaluate_linear_separability(test_hidden_states, y_test, train_hidden_states, y_train)
-
-            # Get the accuracy from the training history
-            train_accuracy = history.history["accuracy"][-1]
-            val_accuracy = history.history["val_accuracy"][-1]
-
-            # Store separability scores for each layer
-            training_separability_scores_train = [df_results_train.loc[i, "Train Linear Separability"] for i in range(len(train_hidden_states))]
-            testing_separability_scores_train = [df_results_train.loc[i, "Test Linear Separability"] for i in range(len(test_hidden_states))]
-            testing_separability_scores_test = [df_results_test.loc[i, "Train Linear Separability"] for i in range(len(test_hidden_states))]
-            training_separability_scores_test = [df_results_test.loc[i, "Test Linear Separability"] for i in range(len(train_hidden_states))]
-
-            # Create a result dictionary for this combination of frozen status
-            result_dict = {
-                "frozen": frozen,
-                "train_accuracy": train_accuracy,
-                "val_accuracy": val_accuracy
-            }
-            for i, (train_score_train, test_score_train, test_score_test, train_score_test) in enumerate(zip(training_separability_scores_train, testing_separability_scores_train, testing_separability_scores_test, training_separability_scores_test)):
-                result_dict[f"layer_{i}_training_separability_train"] = train_score_train
-                result_dict[f"layer_{i}_testing_separability_train"] = test_score_train
-                result_dict[f"layer_{i}_testing_separability_test"] = test_score_test
-                result_dict[f"layer_{i}_training_separability_test"] = train_score_test
-
-            # Convert the result dictionary to a DataFrame
-            result_df = pd.DataFrame([result_dict])
-
-            # Append the result to the CSV file
-            with open("Results/cifar_100_frozen_states.csv", "a") as f:
-                result_df.to_csv(f, header=f.tell() == 0, index=False)
-
-# Example usage
-frozen_options = [True, False]
-# evaluate_frozen_states(frozen_options)
+evaluate_regularization(regularization_options, frozen_options)
 
 ##############################################################################################
 
@@ -603,7 +529,7 @@ def evaluate_training_progress(frozen_options, num_trials=25, epochs=100, batch_
 
 # Example usage
 frozen_options = [True, False]
-# evaluate_training_progress(frozen_options)
+evaluate_training_progress(frozen_options)
 
 ##############################################################################################
 
