@@ -638,116 +638,10 @@ def visualize_linear_separability(csv_file, base_dataset, filter_type="all"):
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
-##########################################################################################################################
-
-def visualize_training(csv_file, base_dataset, filter_type="all", data_type="testing", num_epochs_to_plot=1):
-    """
-    Visualize the average linear separability score and 95% confidence interval for each layer of the network
-    based on the first specified number of epochs.
-
-    Parameters:
-    csv_file (str): Path to the CSV file containing the experiment results.
-    base_dataset (str): Dataset name.
-    filter_type (str): One of ["frozen", "unfrozen", "all"] to filter the data.
-    data_type (str): One of ["training", "testing"] to specify which data to analyze.
-    num_epochs_to_plot (int): Number of the first epochs to plot.
-    """
-    if data_type not in ["training", "testing"]:
-        raise ValueError("data_type must be one of ['training', 'testing']")
-
-    df = pd.read_csv(csv_file)
-
-    if filter_type == "frozen":
-        df = df[df["frozen"] == True]
-    elif filter_type == "unfrozen":
-        df = df[df["frozen"] == False]
-    elif filter_type != "all":
-        raise ValueError("filter_type must be one of ['frozen', 'unfrozen', 'all']")
-
-    score_column_prefix = "layer_{}_train_separability" if data_type == "training" else "layer_{}_test_separability"
-    accuracy_column = "train_accuracy" if data_type == "training" else "val_accuracy"
-
-    grouped = df.groupby(['frozen', 'epoch'])
-    plot_data = []
-
-    for (frozen, epoch), group in grouped:
-        if epoch < num_epochs_to_plot:  # Plot only the first num_epochs_to_plot epochs
-            for i in range(6):
-                layer_column = score_column_prefix.format(i)
-                if layer_column in group.columns:
-                    mean, lower, upper = confidence_interval(group[layer_column])
-                    plot_data.append({
-                        "frozen": frozen,
-                        "epoch": epoch,
-                        "layer": i,
-                        "mean_separability": mean,
-                        "lower_ci": lower,
-                        "upper_ci": upper
-                    })
-
-    plot_df = pd.DataFrame(plot_data)
-
-    sns.set(style="whitegrid")
-    plt.figure(figsize=(7, 5))
-    
-
-    colors = sns.color_palette("plasma", n_colors=plot_df['epoch'].nunique())
-    color_map = {epoch: colors[i] for i, epoch in enumerate(sorted(plot_df['epoch'].unique()))}
-
-    for (frozen, epoch), group in plot_df.groupby(['frozen', 'epoch']):
-        color = color_map[epoch]
-        linestyle = 'solid' if frozen else 'dashed'
-        plt.plot(group["layer"], group["mean_separability"],
-                 color=color, linestyle=linestyle, alpha=1)
-        plt.fill_between(group["layer"], group["lower_ci"], group["upper_ci"], color=color, alpha=0.1)
-
-    for layer in range(1, 6, 3):
-        plt.axvline(x=layer, color='black', linestyle='dotted', linewidth=1.5)
-
-    plt.xticks(np.arange(0, 6, 1))
-    plt.grid(True, which='both', linestyle='dotted', linewidth=0.5)
-
-    plt.xlabel("Layer Index")
-    plt.ylabel("Average Linear Separability Score")
-
-    # Create separate legends
-    frozen_legend = [plt.Line2D([0], [0], color='black', linestyle='solid', label="Reservoir"),
-                     plt.Line2D([0], [0], color='black', linestyle='dashed', label="Fully Trainable")]
-
-    epoch_legend = [plt.Line2D([0], [0], color=color_map[epoch], linestyle='solid', label=f"Epoch={epoch}")
-                    for epoch in sorted(plot_df['epoch'].unique())]
-
-    # Combine legends side-by-side inside the plot
-    legend1 = plt.legend(handles=frozen_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.25, 0))
-    plt.gca().add_artist(legend1)
-    legend2 = plt.legend(handles=epoch_legend, loc='lower left', frameon=True, bbox_to_anchor=(0, 0))
-
-    plt.tight_layout()
-    filename = f"Results/Images/{base_dataset}_training_{data_type}_{filter_type}.png"
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
-    plt.show()
-
-    # Conduct t-test for each epoch
-    epochs = df['epoch'].unique()
-    for epoch in epochs:
-        frozen_accuracy = df[(df["frozen"] == True) & (df["epoch"] == epoch)][accuracy_column]
-        unfrozen_accuracy = df[(df["frozen"] == False) & (df["epoch"] == epoch)][accuracy_column]
-
-        if not frozen_accuracy.empty and not unfrozen_accuracy.empty:
-            mean_frozen_accuracy = np.mean(frozen_accuracy)
-            mean_unfrozen_accuracy = np.mean(unfrozen_accuracy)
-
-            t_stat, p_value = ttest_ind(frozen_accuracy, unfrozen_accuracy, equal_var=False)
-
-            print(f"Epoch: {epoch}")
-            print(f"  Mean Accuracy (Frozen): {mean_frozen_accuracy}")
-            print(f"  Mean Accuracy (Unfrozen): {mean_unfrozen_accuracy}")
-            print(f"  P-value for t-test: {p_value}\n")
-
 
 ##########################################################################################################################
 
-def visualize_combined(csv_layer, csv_ratio, base_dataset, layer_index, num_epochs_to_plot=50):
+def visualize_training(csv_layer, csv_ratio, base_dataset, layer_index, num_epochs_to_plot=50):
     df_layer = pd.read_csv(csv_layer)
     df_ratio = pd.read_csv(csv_ratio)
     df_ratio = df_ratio[df_ratio["freeze_ratio"].isin([0.1, 0.2, 0.3, 0.4, 0.5])]
@@ -756,6 +650,53 @@ def visualize_combined(csv_layer, csv_ratio, base_dataset, layer_index, num_epoc
     df_ratio["freezing_type"] = df_ratio["freeze_ratio"].apply(lambda x: f"{int(x * 100)}% Weights Frozen")
 
     df_combined = pd.concat([df_layer, df_ratio], ignore_index=True)
+
+    # Extract accuracy values for first several epochs
+    num_epochs_to_analyze = 6
+    acc_column = "val_accuracy"
+    accuracy_data = df_combined[df_combined["epoch"] < num_epochs_to_analyze]
+
+    # Initialize table dictionary
+    table_data = {"Epoch": list(range(num_epochs_to_analyze))}
+    
+    # Get accuracy values for each freezing type at each epoch
+    freezing_types = df_combined["freezing_type"].unique()
+    unfrozen_acc = accuracy_data[accuracy_data["freezing_type"] == "Unfrozen"]
+
+    for freezing_type in freezing_types:
+        acc_values = accuracy_data[accuracy_data["freezing_type"] == freezing_type]
+        avg_acc_by_epoch = acc_values.groupby("epoch")[acc_column].mean()
+
+        # Store accuracy in the table
+        table_data[f"{freezing_type} Accuracy"] = avg_acc_by_epoch.reindex(range(num_epochs_to_analyze), fill_value=np.nan).values
+        
+        if freezing_type != "Unfrozen":
+            # Perform t-test comparing frozen type to unfrozen
+            p_values = []
+            for epoch in range(num_epochs_to_analyze):
+                frozen_epoch_acc = acc_values[acc_values["epoch"] == epoch][acc_column]
+                unfrozen_epoch_acc = unfrozen_acc[unfrozen_acc["epoch"] == epoch][acc_column]
+
+                if len(frozen_epoch_acc) > 1 and len(unfrozen_epoch_acc) > 1:
+                    t_stat, p_val = ttest_ind(frozen_epoch_acc, unfrozen_epoch_acc, equal_var=False, nan_policy='omit')
+                else:
+                    p_val = np.nan  # Not enough data for a t-test
+
+                p_values.append(p_val)
+
+            # Store significance values in the table
+            table_data[f"{freezing_type} p-value"] = p_values
+
+    # Convert to DataFrame and print table
+    results_table = pd.DataFrame(table_data)
+    print(results_table.to_string(index=False))
+
+    # Save the table as a CSV file
+    csv_filename = f"Results/{base_dataset}_accuracy_significance.csv"
+    results_table.to_csv(csv_filename, index=False)
+    print(f"Table saved to {csv_filename}")
+
+    # ---- Visualization Code ----
     grouped = df_combined.groupby(['freezing_type', 'epoch'])
 
     plot_data = []
@@ -784,10 +725,8 @@ def visualize_combined(csv_layer, csv_ratio, base_dataset, layer_index, num_epoc
         plt.plot(group["epoch"], group["mean_separability"], color=color, alpha=1, label=freezing_type)
         plt.fill_between(group["epoch"], group["lower_ci"], group["upper_ci"], color=color, alpha=0.1)
 
-    # Set major ticks every 10 epochs
+    # Set major and minor ticks
     plt.xticks(np.arange(0, num_epochs_to_plot, 10))
-
-    # Set minor ticks every 5 epochs
     plt.minorticks_on()
     plt.grid(True, which='both', linestyle='dotted', linewidth=0.5)
     plt.grid(True, which='minor', linestyle='dotted', linewidth=0.5, color='lightgrey')
@@ -798,12 +737,12 @@ def visualize_combined(csv_layer, csv_ratio, base_dataset, layer_index, num_epoc
     plt.legend(loc='lower right', frameon=True, bbox_to_anchor=(1, 0))
     plt.tight_layout()
     filename = f"Results/Images/{base_dataset}_layer_{layer_index}_comparison.png"
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    # plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
 
 ##########################################################################################################################
 
-base_dataset = "cifar_100"
+base_dataset = "cifar_10"
 
 csv_file_path = f"Results/{base_dataset}_width_new.csv"
 visualize_width(csv_file_path, base_dataset, filter_type="all", data_type="training")
@@ -829,16 +768,11 @@ csv_file_path = f"Results/{base_dataset}_regularization_new.csv"
 visualize_regularization(csv_file_path, base_dataset, filter_type="all", data_type="training")
 visualize_regularization(csv_file_path, base_dataset, filter_type="all", data_type="testing")
 
-csv_file_path = f"Results/{base_dataset}_training_separability_new.csv"
-visualize_training(csv_file_path, base_dataset, num_epochs_to_plot=5, data_type="training")
-visualize_training(csv_file_path, base_dataset, num_epochs_to_plot=5, data_type="testing")
-
-
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=0, num_epochs_to_plot=21)
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=1, num_epochs_to_plot=21)
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=2, num_epochs_to_plot=21)
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=3, num_epochs_to_plot=21)
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=4, num_epochs_to_plot=21)
-visualize_combined(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=5, num_epochs_to_plot=21)
+visualize_training(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=0, num_epochs_to_plot=21)
+visualize_training(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=1, num_epochs_to_plot=21)
+visualize_training(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=2, num_epochs_to_plot=21)
+visualize_training(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=3, num_epochs_to_plot=21)
+visualize_training(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=4, num_epochs_to_plot=21)
+visualize_training(f"Results/{base_dataset}_training_separability_new.csv", f"Results/{base_dataset}_partial_freezing_separability.csv", base_dataset, layer_index=5, num_epochs_to_plot=21)
 
 
