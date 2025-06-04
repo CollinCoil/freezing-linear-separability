@@ -69,3 +69,39 @@ def evaluate_linear_separability(train_hidden_states, train_labels, test_hidden_
                         "Test Linear Separability": test_accuracy})
     
     return pd.DataFrame(results)
+
+
+def evaluate_linear_separability_mlp(train_hidden_states, train_labels, test_hidden_states, test_labels, epochs=10, batch_size=128):
+    """
+    Evaluate linear separability using a one-layer MLP (Dense + softmax).
+    
+    Returns:
+    pandas DataFrame with layer indices and training/testing accuracy.
+    """
+    results = []
+
+    train_label_indices = np.argmax(train_labels, axis=1)
+    test_label_indices = np.argmax(test_labels, axis=1)
+    num_classes = train_labels.shape[1]
+
+    for i, (train_features, test_features) in enumerate(zip(train_hidden_states, test_hidden_states)):
+        input_dim = train_features.shape[1]
+
+        model = tf.keras.Sequential([
+            tf.keras.layers.Input(shape=(input_dim,)),
+            tf.keras.layers.Dense(num_classes, activation='softmax')
+        ])
+
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.fit(train_features, train_labels, epochs=epochs, batch_size=batch_size, verbose=0)
+
+        train_accuracy = model.evaluate(train_features, train_labels, verbose=0)[1]
+        test_accuracy = model.evaluate(test_features, test_labels, verbose=0)[1]
+
+        results.append({
+            "Layer Index": i,
+            "Train Linear Separability": train_accuracy,
+            "Test Linear Separability": test_accuracy
+        })
+
+    return pd.DataFrame(results)
