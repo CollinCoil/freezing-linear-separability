@@ -494,17 +494,28 @@ def visualize_regularization(csv_file, base_dataset, filter_type="all", data_typ
     plt.figure(figsize=(7, 5))
     plt.rcParams.update({'font.size': 14})  # Adjust the size as needed
 
-    colors = sns.color_palette("plasma", n_colors=plot_df['regularization_type'].nunique())
-    color_map = {reg_type: colors[i] for i, reg_type in enumerate(sorted(plot_df['regularization_type'].unique()))}
+    # --- Corrected code for unique colors starts here ---
+    
+    # Create a unique identifier for each regularization type and amount combination
+    plot_df['reg_id'] = plot_df['regularization_type'] + '_' + plot_df['regularization_amount'].astype(str)
+    unique_reg_ids = sorted(plot_df['reg_id'].unique())
+    
+    # Generate a color palette with enough unique colors
+    colors = sns.color_palette("plasma", n_colors=len(unique_reg_ids))
+    color_map = {reg_id: colors[i] for i, reg_id in enumerate(unique_reg_ids)}
 
+    # Plot the data using the unique reg_id for color
     for (frozen, reg_type, reg_amount), group in plot_df.groupby(['frozen', 'regularization_type', 'regularization_amount']):
-        color = color_map[reg_type]
+        reg_id = f"{reg_type}_{reg_amount}"
+        color = color_map[reg_id]
         linestyle = 'solid' if frozen else 'dashed'
         label = f"{reg_type.capitalize()} ({reg_amount})"
         plt.plot(group["layer"], group["mean_separability"],
                  label=label,
                  color=color, linestyle=linestyle, alpha=1)
         plt.fill_between(group["layer"], group["lower_ci"], group["upper_ci"], color=color, alpha=0.1)
+
+    # --- Corrected code for unique colors ends here ---
 
     for layer in range(1, 6, 3):
         plt.axvline(x=layer, color='black', linestyle='dotted', linewidth=1.5)
@@ -520,11 +531,13 @@ def visualize_regularization(csv_file, base_dataset, filter_type="all", data_typ
     frozen_legend = [plt.Line2D([0], [0], color='black', linestyle='solid', label="Reservoir"),
                      plt.Line2D([0], [0], color='black', linestyle='dashed', label="Fully Trainable")]
 
-    # Sort the DataFrame by regularization type and amount
+    # Sort the DataFrame by the unique regularization identifier for consistent legend order
     sorted_reg_df = plot_df[['regularization_type', 'regularization_amount']].drop_duplicates().sort_values(by=['regularization_type', 'regularization_amount'])
-    regularization_legend = [plt.Line2D([0], [0], color=color_map[row['regularization_type']], linestyle='solid',
+    sorted_reg_df['reg_id'] = sorted_reg_df['regularization_type'] + '_' + sorted_reg_df['regularization_amount'].astype(str)
+    
+    regularization_legend = [plt.Line2D([0], [0], color=color_map[row['reg_id']], linestyle='solid',
                                          label=f"{row['regularization_type'].capitalize()} ({row['regularization_amount']})")
-                             for _, row in sorted_reg_df.iterrows()]
+                               for _, row in sorted_reg_df.iterrows()]
 
     # Combine legends side-by-side inside the plot
     legend1 = plt.legend(handles=frozen_legend, loc='lower left', frameon=True, bbox_to_anchor=(0.33, 0))
